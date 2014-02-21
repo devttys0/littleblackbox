@@ -1,0 +1,85 @@
+OVERVIEW
+
+	LittleBlackBox is a collection of thousands of private SSL and SSH keys extracted from various embedded 
+	devices. These private keys are stored in a SQLite database where they are correlated with their public
+	certificates as well as the hardware/firmware that are known to use those private keys.
+
+	A command line utility is included to aid in the identification of devices or network traffic that use
+	these known private keys. Given a public certificate, the utility will search the database to see if it
+	has a corresponding private key; if so, the private key is displayed and can be used for traffic decryption 
+	or MITM attacks. Alternatively, it will also display a table of hardware and firmware that is known to use 
+	that private key.
+
+	The utility can obtain a public certificate several different ways:
+
+		1) You may give it the SHA1 hash of a public certificate.
+		2) You may give it the path to a public certificate file.
+		3) Given a host, it will retrieve the host's public SSL certificate.
+		4) Given a pcap file, it will parse the file looking for public certificate exchanges.
+		5) Given a live network interface, it will listen for public certificate exchanges.
+	
+	Note that for SSH key lookups, only method #1 above is supported.
+
+DESCRIPTION
+
+        It is not uncommon for embedded devices to provide an HTTPS interface for secure administration, VPN 
+        connections, etc. However, the firmware for many of these devices use default SSL certificates, meaning 
+        that all devices running the same firmware use the same public/private key pair. By downloading and 
+        extracting the firmware for these devices, the public and private keys can be obtained, and SSL traffic 
+        can be decrypted or man-in-the-middled. Additionally, vendors may use the same SSL keys between different 
+        firmware or even hardware revisions.
+
+        The difficulty that arises is that there often is no easy way to know what device you are talking to or if 
+        that device uses a default SSL key. Further, even if this information is available, you must go through the
+        process of extracting the SSL keys from the appropriate firmware version. By gathering these keys into a 
+        database and associating private keys with their corresponding public keys, devices and firmware versions,
+        it becomes much easier to identify vulnerable SSL implementations.
+
+USAGE
+
+	Check a remote host for a known SSL key pair:
+
+		$ littleblackbox --host=192.168.1.1
+		$ littleblackbox --host=192.168.1.1:443
+	
+	Check a pcap file for SSL certificate exchanges that match a known SSL private key:
+
+		$ littleblackbox --pcap=file.pcap
+
+	Listen on a live network interface for SSL certificate exchanges that match a known SSL private key:
+
+		# littleblackbox --interface=eth0
+
+	Check a local SSL certificate to see if it matches any that have a known SSL private key:
+
+		$ littleblackbox --pem=cert.pem
+
+	Search the database for a given hardware/firmware version:
+
+		$ littleblackbox --search=hardware.vendor=linksys
+		$ littleblackbox --search=firmware.vendor=dd-wrt
+
+	List of all valid table/column values for use with the --search option (requires sqlite3):
+
+		$ sqlite3 lbb.db
+		sqlite> .schema
+		CREATE TABLE certificates(id INTEGER PRIMARY KEY, fingerprint TEXT, certificate TEXT, key TEXT, description TEXT);
+		CREATE TABLE firmware(id INTEGER PRIMARY KEY, device_id INTEGER, certificate_id INTEGER, vendor TEXT, description TEXT);
+		CREATE TABLE hardware(id INTEGER PRIMARY KEY, vendor TEXT, model TEXT, revision TEXT, description TEXT);
+
+DATABASE
+
+	Currently the database has over 2,000 unique public/private key pairs. These have been primarily extracted 
+	from router and VPN firmware, most of them belonging to various versions of DD-WRT.
+
+	Of course, embedded firmwares are not the only pieces of software to use default SSL keys, and we encourage
+	the submission of any legally obtained SSL keys to the LittleBlackBox project. See the FAQ for submission
+	criteria and instructions.
+
+FILES
+
+	/bin/lbb.db		LittleBlackBox SQLite3 database.
+	/bin/littleblackbox	Statically compiled LittleBlackBox Linux binary.
+	/src/*			Source files for LittleBlackBox, OpenSSL, SQLite and Libpcap.
+	/docs/*			License, usage and FAQ documentation.
+

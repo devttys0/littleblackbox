@@ -1,0 +1,12 @@
+LittleBlackBox requires the OpenSSL, libpcap, libcurl and sqlite3 libraries. These must be installed in order to build:
+
+	$ ./configure
+	$ make
+
+If you do not have the required libraries installed, you may specify a static build and the libraries will be built into 
+a local directory (not installed on the build system) and statically linked into the binary:
+
+	$ ./configure --enable-static
+	$ make
+
+Note that static builds will not work on Mac OSX.

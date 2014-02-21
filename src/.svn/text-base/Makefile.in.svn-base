@@ -1,0 +1,71 @@
+CC=@CC@
+CFLAGS=@CFLAGS@
+BUILD_LIBS=@BUILD_LIBS@
+LDFLAGS=-lsqlite3 -lssl -lcrypto -lpcap -lcurl -lpthread -lrt @LDL@
+TARGET=littleblackbox
+MANPAGE=$(TARGET).1.gz
+DB=lbb.db
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+datarootdir=@datarootdir@
+
+$(TARGET): littleblackbox.o
+	$(CC) $(CFLAGS) main.c -o $(TARGET) *.o @INC@ @LIB@ $(LDFLAGS)
+	cp $(TARGET) ../bin/$(TARGET)
+
+littleblackbox.o: @SQLITE@ common.o sql.o certs.o network.o dbupdate.o
+	$(CC) $(CFLAGS) @INC@ -c littleblackbox.c
+
+common.o: @OPENSSL@
+	$(CC) $(CFLAGS) @INC@ -c common.c
+
+network.o: @OPENSSL@ @LIBPCAP@
+	$(CC) $(CFLAGS) @INC@ -c network.c
+
+certs.o: @OPENSSL@
+	$(CC) $(CFLAGS) @INC@ -c certs.c
+
+sql.o: @SQLITE@
+	$(CC) $(CFLAGS) @INC@ -c sql.c
+
+dbupdate.o: @LIBCURL@
+	$(CC) $(CFLAGS) @INC@ -c dbupdate.c
+
+@OPENSSL@:
+ifeq ($(BUILD_LIBS), y)
+	(mkdir @OPENSSL@ && tar -zxvf openssl*.tar.gz -C @OPENSSL@) 
+	(cd @OPENSSL@/openssl* && ./config --prefix=$(shell pwd)/@OPENSSL@ && make && make install)
+endif
+
+@LIBPCAP@:
+ifeq ($(BUILD_LIBS), y)
+	(mkdir @LIBPCAP@ && tar -zxvf libpcap*.tar.gz -C @LIBPCAP@)
+	(cd @LIBPCAP@/libpcap* && ./configure --prefix=$(shell pwd)/@LIBPCAP@ && make && make install)
+endif
+
+@SQLITE@:
+ifeq ($(BUILD_LIBS), y)
+	(mkdir @SQLITE@ && tar -zxvf sqlite*.tar.gz -C @SQLITE@)
+	(cd @SQLITE@/sqlite* && ./configure --prefix=$(shell pwd)/@SQLITE@ && make && make install)
+endif
+
+@LIBCURL@:
+ifeq ($(BUILD_LIBS), y)
+	(mkdir @LIBCURL@ && tar -zxvf curl*.tar.gz -C @LIBCURL@)
+	(cd @LIBCURL@/curl* && ./configure --prefix=$(shell pwd)/@LIBCURL@ --disable-debug --disable-curldebug --disable-ares --disable-ftp --disable-ldap --disable-ldaps --disable-rtsp --disable-proxy --disable-dict --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smtp --disable-gopher --disable-manual --disable-sspi --disable-crypto-auth --disable-cookies --disable-hidden-symbols --disable-soname-bump --without-ssl --without-zlib --without-gnutls --without-polarssl --without-nss --without-libssh2 --without-librtmp --without-libidn && make && make install)
+endif
+
+install: docinstall
+	cp ../bin/$(DB) /etc/$(DB)
+	cp ../bin/$(TARGET) @bindir@/$(TARGET)
+	
+docinstall:
+	cp ../docs/$(MANPAGE) @mandir@/man1/$(MANPAGE)
+
+clean:
+	rm -f $(TARGET) *.o
+
+distclean: clean
+	rm -rf @OPENSSL@ @LIBPCAP@ @SQLITE@ @LIBCURL@
+	rm -rf *.cache config.*
+	rm -f @mandir@/man1/$(MANPAGE) @bindir@/$(TARGET) /etc/$(DB)

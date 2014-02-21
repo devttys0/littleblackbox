@@ -1,0 +1,42 @@
+CC=@CC@
+CFLAGS=@CFLAGS@
+LDFLAGS=-lsqlite3 -lssl -lcrypto -lpcap -lcurl -lpthread -lrt @LDL@
+TARGET=littleblackbox
+MANPAGE=$(TARGET).1.gz
+DB=lbb.db
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+datarootdir=@datarootdir@
+
+$(TARGET): littleblackbox.o
+	$(CC) $(CFLAGS) main.c -o $(TARGET) *.o $(LDFLAGS)
+
+littleblackbox.o: common.o sql.o certs.o network.o
+	$(CC) $(CFLAGS) -c littleblackbox.c
+
+common.o:
+	$(CC) $(CFLAGS) -c common.c
+
+network.o:
+	$(CC) $(CFLAGS) -c network.c
+
+certs.o:
+	$(CC) $(CFLAGS) -c certs.c
+
+sql.o:
+	$(CC) $(CFLAGS) -c sql.c
+
+install: docinstall
+	cp $(DB) /etc/$(DB)
+	cp $(TARGET) @bindir@/$(TARGET)
+	
+docinstall:
+	cp ../docs/$(MANPAGE) @mandir@/man1/$(MANPAGE)
+
+clean:
+	rm -f $(TARGET) *.o
+
+distclean: clean
+	rm -rf *.cache config.* Makefile
+	rm -f @mandir@/man1/$(MANPAGE) @bindir@/$(TARGET) /etc/$(DB)
+

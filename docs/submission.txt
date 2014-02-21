@@ -1,0 +1,27 @@
+##########################################################################################
+#This is an example submission file for submitting SSL keys to the LittleBlackBox project.
+#
+#Please fill out as much information as possible. If any of the fields are unknown or not
+#applicable to your submission, you may leave them blank ("").
+##########################################################################################
+
+#File name for the public certificate
+CERT="cert.pem"
+#File name for the private key
+KEY="key.pem"
+#Certificate description
+CERTDESC="SSL Key Pair"
+
+#Hardware vendor name
+HWVENDOR="Linksys"
+#Hardware model name
+MODEL="WRT160N"
+#Hardware revision
+REV="v3"
+#Hardware description
+HWDESC="Wireless-N Broadband Router"
+
+#Firmware vendor name
+FWVENDOR="Linksys"
+#Firmware description (typically the firmware version along with any other relevant information)
+FWDESC="3.0.03 Build 3"
