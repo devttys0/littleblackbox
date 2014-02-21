@@ -1,6 +1,6 @@
 CC=@CC@
 CFLAGS=@CFLAGS@
-LDFLAGS=-lsqlite3 -lssl -lcrypto -lpcap -lcurl -lpthread -lrt @LDL@
+LDFLAGS=-lsqlite3 -lssl -lcrypto -lpcap -lpthread -lrt @LDL@
 TARGET=littleblackbox
 MANPAGE=$(TARGET).1.gz
 DB=lbb.db

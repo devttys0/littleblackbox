@@ -51,7 +51,7 @@ pcap_t *initialize_network(char *iface, char *filter, int type)
 /* Processes each incoming packet looking for SSL certificate handshakes */
 char *process_packet(const u_char *packet, struct pcap_pkthdr *header)
 {
-    struct sniff_ethernet *ethernet = NULL;
+    //struct sniff_ethernet *ethernet = NULL;
     struct sniff_ip *ip = NULL;
     struct sniff_tcp *tcp = NULL;
     u_char *tls_record = NULL;
@@ -67,7 +67,7 @@ char *process_packet(const u_char *packet, struct pcap_pkthdr *header)
         goto end;
     }
 
-    ethernet = (struct sniff_ethernet*)(packet);
+    //ethernet = (struct sniff_ethernet*)(packet);
     size_eth = sizeof(struct sniff_ethernet);
 
     ip = (struct sniff_ip*)(packet + size_eth);

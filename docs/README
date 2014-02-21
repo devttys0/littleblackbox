@@ -78,8 +78,7 @@ DATABASE
 
 FILES
 
-	/bin/lbb.db		LittleBlackBox SQLite3 database.
-	/bin/littleblackbox	Statically compiled LittleBlackBox Linux binary.
-	/src/*			Source files for LittleBlackBox, OpenSSL, SQLite and Libpcap.
+	/src/lbb.db		LittleBlackBox SQLite3 database.
+	/src/*			Source files for LittleBlackBox.
 	/docs/*			License, usage and FAQ documentation.
 
