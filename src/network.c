@@ -5,6 +5,7 @@
 #include "network.h"
 #include "common.h"
 
+int size_eth;
 /* Initializes pcap */
 pcap_t *initialize_network(char *iface, char *filter, int type)
 {
@@ -31,6 +32,11 @@ pcap_t *initialize_network(char *iface, char *filter, int type)
             fprintf(stderr, "ERROR: Failed to open device %s: %s\n", iface, errbuf);
             return NULL;
         }
+        size_eth = sizeof(struct sniff_ethernet);
+#ifdef DLT_LINUX_SLL
+        if(pcap_datalink(handle) == DLT_LINUX_SLL)
+            size_eth += 2;
+#endif
     }
 
     if (pcap_compile(handle, &fp, filter, 0, net) == -1) 
@@ -57,7 +63,7 @@ char *process_packet(const u_char *packet, struct pcap_pkthdr *header)
     u_char *tls_record = NULL;
     u_char *tls_handshake = NULL;
     short tls_record_size = 0;
-    int size_ip = 0, size_tcp = 0, size_eth = 0, offset = 0, payload_size = 0, cert_size = 0;
+    int size_ip = 0, size_tcp = 0, offset = 0, payload_size = 0, cert_size = 0;
     const u_char *payload = NULL;
     char *fingerprint = NULL;
     unsigned char md[SHA_DIGEST_LENGTH] = { 0 };
@@ -68,7 +74,6 @@ char *process_packet(const u_char *packet, struct pcap_pkthdr *header)
     }
 
     //ethernet = (struct sniff_ethernet*)(packet);
-    size_eth = sizeof(struct sniff_ethernet);
 
     ip = (struct sniff_ip*)(packet + size_eth);
     size_ip = IP_HL(ip)*4;
