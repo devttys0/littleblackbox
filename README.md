@@ -44,7 +44,7 @@ Check a local SSL certificate to see if it matches any that have a known SSL pri
 
 Search the database for a given hardware/firmware version:
 
-    $ littleblackbox --search=hardware.vendor=linksys
+    $ littleblackbox --.search=hardware.vendor=linksys
     $ littleblackbox --search=firmware.vendor=dd-wrt
 
 List of all valid table/column values for use with the --search option (requires sqlite3):
